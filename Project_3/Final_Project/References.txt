@@ -1,0 +1,26 @@
+Python documentation
+
+Sqlite
+https://docs.python.org/2/library/sqlite3.html
+
+Forums
+
+Used to read in dictionaries into tables created (CSV_to_DB)
+https://discussions.udacity.com/t/loading-csvs-into-database/314549
+
+For decode addition to CSV_to_DB
+https://discussions.udacity.com/t/creating-db-file-from-csv-files-with-non-ascii-unicode-characters/174958/47
+
+How to Sample the XML file
+https://discussions.udacity.com/t/creating-sample-xml-file-from-a-larger-one-most-appropriate-best-method/244864
+
+How to make the data_10_15.py script run faster (remove validator)
+https://discussions.udacity.com/t/decrease-run-time-in-data-py/335686/4
+
+Github
+
+Schema for DB Tables Recommended in Project Details
+https://gist.github.com/swwelch/f1144229848b407e0a5d13fcb7fbbd6f
+
+Example project used to understand structure of the final report
+https://gist.github.com/carlward/54ec1c91b62a5f911c42#file-sample_project-md

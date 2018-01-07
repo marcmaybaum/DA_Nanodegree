@@ -1,0 +1,225 @@
+Lesson 3
+
+## Reading in Data
+
+'''{r}
+setwd('/Users/marcmaybaum/Desktop/Education/Udacity/Data_Analyst_Nanodegree/Project_4/Lesson 3')
+list.files()
+pf <- read.csv('pseudo_facebook.tsv', sep='\t')
+names(pf)
+'''
+
+### Histogram of Users' Birthdays
+'''{r}
+install.packages('ggplot2')
+library(ggplot2)
+
+names(pf)
+qplot(x = dob_day, data = pf) + 
+  scale_x_continuous(breaks=1:31)
+'''
+
+?scale_x_continuous
+
+### Faceting
+'''{r}
+ggplot(data = pf, aes(x = dob_day)) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(breaks = 1:31) +
+  facet_wrap(~dob_month)
+'''
+
+### facet_wrap(~variable) takes same plot for each level of your categorical variable
+
+### be skeptical of outliers and anomalies! outliers may have many causes, but sometimes they are indicators of an error.
+
+### Histogram of friend_count
+'''{r}
+qplot(x = friend_count, data = pf)
+'''
+
+### Limiting the axes
+'''{r}
+qplot(x = friend_count, data = pf, xlim = c(0, 1000))
+
+qplot(x = friend_count, data = pf) + 
+  scale_x_continuous(limits=c(0, 1000))
+'''
+
+### Adjusting the bin width
+
+'''{r}
+qplot(x = friend_count, data=pf, binwidth = 25) + scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) + facet_wrap(~gender)
+'''
+
+### Omitting NA Gender Observations
+'''{r}
+qplot(x = friend_count, data=subset(pf, !is.na(gender)), binwidth = 10) + scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) + facet_wrap(~gender)
+'''
+
+### Statistics 'by' Gender
+'''{r}
+table(pf$gender)
+by(pf$friend_count, pf$gender, summary)
+'''
+
+### Tenure
+'''{r}
+qplot(x= tenure, data = pf, binwidth = 30,
+  color = I('black'), fill = I('#099DD9'))
+'''
+
+### Tenure in Years
+'''{r}
+qplot(x= tenure/365, data = pf, binwidth = 1, color = I('black'), fill = I('#099DD9')) + scale_x_continuous(breaks = seq(1, 7, 1), limits = c(0,7)) 
+'''
+
+### Labeling Plots - focus on making sensible choices for scales and axes
+'''{r}
+qplot(x = tenure/365, data = pf,
+      xlab = 'Number of years using Facebook',
+      ylab = 'Number of users in sample',
+      color = I('black'), fill = I('#F79420')) + 
+  scale_x_continuous(breaks = seq(1,7,1), lim = c(0,7))
+'''
+
+### User Ages
+'''{r}
+names(pf)
+summary(pf$age)
+scale_x_continuous?
+
+qplot(x = age, data = pf, binwidth = 1,
+      color = I('black'), fill = I('#5760AB')) +
+  scale_x_continuous(lim = c(13,115))
+      
+'''
+
+### Transforming the Data
+### In stats, it is common for the data to be 'overdispersed'. Often it helps to transform these values, so we can see standard deviations or orders of magnitudes that shortens the tail of the dispersion. A lot of common stat techniques are based on the assumption that variables have normal distributions.
+
+'''{r}
+qplot(x = friend_count, data = pf)
+
+summary(pf$friend_count)
+
+summary(log10(pf$friend_count + 1))
+
+summary(sqrt(pf$friend_count))
+'''
+
+### Transforming Data
+'''{r}
+install.packages('gridExtra')
+library(ggplot2)
+library(gridExtra)
+??gridExtra
+
+plot <- qplot(x = friend_count, data = pf)
+log <- qplot(x= log10(friend_count + 1), data = pf)
+sqrt <- qplot(x = sqrt(friend_count), data = pf)
+
+grid.arrange(plot, log, sqrt, ncol = 1)
+'''
+
+### Alternate way to transform data
+'''{r}
+p1 <- ggplot(aes(x = friend_count), data = pf) + geom_histogram()
+p2 <- p1 + scale_x_log10()
+p3 <- p1 + scale_x_sqrt()
+
+grid.arrange(p1,p2,p3, ncol = 1)
+
+'''
+
+### Add a Scaling Layer
+### The difference is in the X axis scale. Can be seen when comparing two below graphs of same thing.
+'''{r}
+logScale <- qplot(x = log10(friend_count), data = pf)
+
+countScale <- ggplot(aes(x = friend_count), data = pf) +
+  geom_histogram() +
+  scale_x_log10()
+  
+grid.arrange(logScale, countScale, ncol =2)
+'''
+
+### Frequency Polygons are similar to histograms, but they draw a curved line connecting the histograms.
+'''{r}
+qplot(x = friend_count, data=subset(pf, !is.na(gender)), binwidth = 10) +
+  scale_x_continuous(lim = c(0, 1000), breaks = seq(0, 1000, 50)) + 
+  facet_wrap(~gender)
+
+qplot(x = friend_count, data = subset(pf, !is.na(gender)),       binwidth = 10, geom = 'freqpoly', color = gender) +
+  scale_x_continuous(lim=c(0,1000), breaks = seq(0, 1000,    50))
+
+qplot(x = friend_count, y = ..count../sum(..count..),
+      data=subset(pf, !is.na(gender)),
+      xlab = 'Friend Count',
+      ylab = 'Proportion of Users with that Friend Count',
+      binwidth = 10, geom = 'freqpoly', color = gender) +
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0,    1000, 50))
+'''
+
+### Likes on the web
+'''{r}
+summary(pf$www_likes)
+
+qplot(x = www_likes, data = subset(pf, !is.na(gender)),          geom = 'freqpoly', color = gender) +
+  scale_x_continuous() +
+  scale_x_log10()
+
+'''
+
+### More Likes on the web
+'''{r}
+pf_male <- subset(pf$www_likes, pf$gender == 'male')
+pf_female <- subset(pf$www_likes, pf$gender == 'female')
+sum(pf_male)
+sum(pf_female)
+
+by(pf$www_likes, pf$gender, sum)
+'''
+
+
+### Histogram vs Box Plots 3 Different Ways
+'''{r}
+qplot(x = friend_count, data=subset(pf, !is.na(gender)), 
+      binwidth = 10) +
+  scale_x_continuous(lim = c(0, 1000), breaks = seq(0,
+  1000, 50)) + 
+  facet_wrap(~gender)
+
+qplot(x = gender, y = friend_count,
+      data = subset(pf, !is.na(gender)), geom = 'boxplot',
+      ylim = c(0,1000))
+
+qplot(x = gender, y = friend_count,
+      data = subset(pf, !is.na(gender)), geom = 'boxplot') +
+      scale_y_continuous(limits = c(0,1000))
+
+qplot(x = gender, y = friend_count,
+      data = subset(pf, !is.na(gender)), geom = 'boxplot') +
+      coord_cartesian(ylim = c(0,1000))
+'''
+
+### Line in box = median, the box for each male & female represents the middle 50% of values in our sample. Now we are going to look into Friendships_Initiated
+'''{r}
+names(pf)
+
+by(pf$friendships_initiated, pf$gender, summary)
+'''
+
+### Getting Logical
+'''{r}
+summary(pf$mobile_likes)
+
+summary(pf$mobile_likes > 0)
+
+pf$mobile_check_in <- NA
+pf$mobile_check_in <- ifelse(pf$mobile_likes > 0,1,0)
+pf$mobile_check_in <- factor(pf$mobile_check_in)
+summary(pf$mobile_check_in)
+
+sum(pf$mobile_check_in == 1)/length(pf$mobile_likes)
+'''

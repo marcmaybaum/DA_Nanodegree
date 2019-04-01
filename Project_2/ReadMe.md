@@ -1,0 +1,1 @@
+Project2_MM_.ipynb is a python file that explores the MLB Hall of Fame dataset and runs a regression analysis on MLB catchers' performances compared to Hall of Fame catchers in various measurements contained in the dataset.
